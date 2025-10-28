@@ -32,4 +32,9 @@
         android:name="ky.paba.mynavigation.SettingFragment"
         android:label="Setting"
         tools:layout="@layout/fragment_setting" />
+    <fragment
+        android:id="@+id/bahanFragment"
+        android:name="ky.paba.mynavigation.BahanFragment"
+        android:label="bahan"
+        tools:layout="@layout/fragment_bahan" />
 </navigation>

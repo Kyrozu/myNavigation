@@ -19,6 +19,11 @@
         android:icon="@drawable/outline_settings_24"
         android:title="Setting" />
 
+    <item
+        android:id="@+id/bahanFragment"
+        android:icon="@drawable/outline_skillet_cooktop_24"
+        android:title="Bahan" />
+
 
     <item android:title="Confidential">
         <menu>
