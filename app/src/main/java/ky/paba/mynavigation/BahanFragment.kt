@@ -49,13 +49,29 @@ class BahanFragment : Fragment() {
 
         itemBahan.addAll(
             listOf(
-                "Beras - Bahan Pokok",
-                "Telur Ayam - Protein Hewani",
-                "Bawang Putih - Bumbu Dapur",
-                "Minyak Goreng - Minyak & Lemak",
-                "Santan - Bahan Tambahan"
+                "Beras - Karbohidrat - https://cdn.pixabay.com/photo/2016/03/31/20/25/rice-1290726_1280.png",
+                "Telur Ayam - Protein - https://cdn.pixabay.com/photo/2016/03/05/21/40/eggs-1238462_1280.png",
+                "Bawang Putih - Bumbu - https://cdn.pixabay.com/photo/2016/03/05/21/41/garlic-1238453_1280.png",
+                "Minyak Goreng - Lemak - https://cdn.pixabay.com/photo/2016/03/05/21/38/oil-1238461_1280.png",
+                "Santan - Lemak - https://cdn.pixabay.com/photo/2017/04/06/19/33/coconut-2206857_1280.png",
+                "Gula Pasir - Bumbu - https://cdn.pixabay.com/photo/2013/07/13/10/24/sugar-157124_1280.png",
+                "Garam - Bumbu - https://cdn.pixabay.com/photo/2014/12/21/23/28/salt-576170_1280.png",
+                "Tepung Terigu - Karbohidrat - https://cdn.pixabay.com/photo/2016/03/05/21/38/flour-1238463_1280.png",
+                "Daging Sapi - Protein - https://cdn.pixabay.com/photo/2017/03/23/21/54/beef-2178723_1280.png",
+                "Ikan Segar - Protein - https://cdn.pixabay.com/photo/2013/07/12/15/59/fish-150558_1280.png",
+                "Kecap Manis - Saus - https://cdn.pixabay.com/photo/2017/07/18/19/08/soy-sauce-2519690_1280.png",
+                "Cabe Merah - Saus - https://cdn.pixabay.com/photo/2013/07/13/09/50/chili-156235_1280.png",
+                "Tomat - Sayuran - https://cdn.pixabay.com/photo/2013/07/12/19/18/tomato-154501_1280.png",
+                "Wortel - Sayuran - https://cdn.pixabay.com/photo/2014/12/21/23/28/carrot-576153_1280.png",
+                "Kentang - Sayuran - https://cdn.pixabay.com/photo/2014/12/21/23/28/potato-576155_1280.png",
+                "Susu - Minuman - https://cdn.pixabay.com/photo/2014/12/21/23/28/milk-576168_1280.png",
+                "Keju - Protein - https://cdn.pixabay.com/photo/2013/07/12/17/00/cheese-151595_1280.png",
+                "Roti Tawar - Karbohidrat - https://cdn.pixabay.com/photo/2016/03/05/21/41/bread-1238459_1280.png",
+                "Madu - Saus - https://cdn.pixabay.com/photo/2014/12/21/23/28/honey-576167_1280.png",
+                "Teh Celup - Minuman - https://cdn.pixabay.com/photo/2017/01/11/11/33/tea-1972341_1280.png"
             )
         )
+
 
         val lvAdapter =
             ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, itemBahan)
