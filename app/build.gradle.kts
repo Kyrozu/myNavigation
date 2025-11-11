@@ -1,6 +1,10 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+
+    // Recycle View
+//    alias { libs.plugins.kotlin.parcelize }
+
 }
 
 android {
@@ -52,4 +56,11 @@ dependencies {
 
     implementation(libs.navigation.fragment.ktx)
     implementation(libs.navigation.ui.ktx)
+
+    // Recycle View
+    implementation(libs.picasso)
+
+    // Shared Preferences
+    implementation(libs.gson)
+
 }

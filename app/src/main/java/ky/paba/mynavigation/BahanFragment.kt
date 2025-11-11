@@ -1,6 +1,8 @@
 package ky.paba.mynavigation
 
 import android.annotation.SuppressLint
+import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.view.GestureDetector
 import androidx.fragment.app.Fragment
@@ -16,6 +18,7 @@ import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.recyclerview.widget.LinearLayoutManager
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -33,7 +36,14 @@ class BahanFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
+    private lateinit var _nama: MutableList<String>
+    private lateinit var _kategori: MutableList<String>
+    private lateinit var _gambar: MutableList<String>
+
     var itemBahan = mutableListOf<String>()
+
+    private var arBahan = arrayListOf<dcBahan>()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,26 +59,26 @@ class BahanFragment : Fragment() {
 
         itemBahan.addAll(
             listOf(
-                "Beras - Karbohidrat - https://cdn.pixabay.com/photo/2016/03/31/20/25/rice-1290726_1280.png",
-                "Telur Ayam - Protein - https://cdn.pixabay.com/photo/2016/03/05/21/40/eggs-1238462_1280.png",
-                "Bawang Putih - Bumbu - https://cdn.pixabay.com/photo/2016/03/05/21/41/garlic-1238453_1280.png",
-                "Minyak Goreng - Lemak - https://cdn.pixabay.com/photo/2016/03/05/21/38/oil-1238461_1280.png",
-                "Santan - Lemak - https://cdn.pixabay.com/photo/2017/04/06/19/33/coconut-2206857_1280.png",
-                "Gula Pasir - Bumbu - https://cdn.pixabay.com/photo/2013/07/13/10/24/sugar-157124_1280.png",
-                "Garam - Bumbu - https://cdn.pixabay.com/photo/2014/12/21/23/28/salt-576170_1280.png",
-                "Tepung Terigu - Karbohidrat - https://cdn.pixabay.com/photo/2016/03/05/21/38/flour-1238463_1280.png",
-                "Daging Sapi - Protein - https://cdn.pixabay.com/photo/2017/03/23/21/54/beef-2178723_1280.png",
-                "Ikan Segar - Protein - https://cdn.pixabay.com/photo/2013/07/12/15/59/fish-150558_1280.png",
-                "Kecap Manis - Saus - https://cdn.pixabay.com/photo/2017/07/18/19/08/soy-sauce-2519690_1280.png",
-                "Cabe Merah - Saus - https://cdn.pixabay.com/photo/2013/07/13/09/50/chili-156235_1280.png",
-                "Tomat - Sayuran - https://cdn.pixabay.com/photo/2013/07/12/19/18/tomato-154501_1280.png",
-                "Wortel - Sayuran - https://cdn.pixabay.com/photo/2014/12/21/23/28/carrot-576153_1280.png",
-                "Kentang - Sayuran - https://cdn.pixabay.com/photo/2014/12/21/23/28/potato-576155_1280.png",
-                "Susu - Minuman - https://cdn.pixabay.com/photo/2014/12/21/23/28/milk-576168_1280.png",
-                "Keju - Protein - https://cdn.pixabay.com/photo/2013/07/12/17/00/cheese-151595_1280.png",
-                "Roti Tawar - Karbohidrat - https://cdn.pixabay.com/photo/2016/03/05/21/41/bread-1238459_1280.png",
-                "Madu - Saus - https://cdn.pixabay.com/photo/2014/12/21/23/28/honey-576167_1280.png",
-                "Teh Celup - Minuman - https://cdn.pixabay.com/photo/2017/01/11/11/33/tea-1972341_1280.png"
+                "Beras | Karbohidrat | https://cdn-icons-png.flaticon.com/512/1531/1531385.png",
+                "Telur Ayam | Protein | https://cdn-icons-png.flaticon.com/512/837/837560.png",
+                "Bawang Putih | Bumbu | https://cdn-icons-png.flaticon.com/512/4139/4139325.png",
+                "Minyak Goreng | Lemak | https://cdn-icons-png.flaticon.com/512/4264/4264676.png",
+                "Santan | Lemak | https://cdn-icons-png.flaticon.com/512/1475/1475932.png",
+                "Gula Pasir | Bumbu | https://cdn-icons-png.flaticon.com/512/10552/10552057.png",
+                "Garam | Bumbu | https://cdn-icons-png.flaticon.com/512/3387/3387326.png",
+                "Tepung Terigu | Karbohidrat | https://cdn-icons-png.flaticon.com/512/5029/5029282.png",
+                "Daging Sapi | Protein | https://cdn-icons-png.flaticon.com/512/3143/3143643.png",
+                "Ikan Segar | Protein | https://cdn-icons-png.flaticon.com/512/10507/10507943.png",
+                "Kecap Manis | Saus | https://cdn-icons-png.flaticon.com/512/3449/3449410.png",
+                "Cabe Merah | Saus | https://cdn-icons-png.flaticon.com/512/1598/1598142.png",
+                "Tomat | Sayuran | https://cdn-icons-png.flaticon.com/512/4264/4264717.png",
+                "Wortel | Sayuran | https://cdn-icons-png.flaticon.com/512/8511/8511087.png",
+                "Kentang | Sayuran | https://cdn-icons-png.flaticon.com/512/1652/1652127.png",
+                "Susu | Minuman | https://cdn-icons-png.flaticon.com/512/869/869664.png",
+                "Keju | Protein | https://cdn-icons-png.flaticon.com/512/819/819827.png",
+                "Roti | Karbohidrat | https://cdn-icons-png.flaticon.com/512/7093/7093198.png",
+                "Madu | Saus | https://cdn-icons-png.flaticon.com/512/7093/7093198.png",
+                "Teh Celup | Minuman | https://cdn-icons-png.flaticon.com/512/3504/3504837.png"
             )
         )
 
@@ -79,6 +89,7 @@ class BahanFragment : Fragment() {
         val _lv1 = view.findViewById<ListView>(R.id.bahan)
         _lv1.adapter = lvAdapter
 
+        // TODO
         val _btnTambah = view.findViewById<Button>(R.id.btnTambah)
         _btnTambah.setOnClickListener {
             showUpdateDialog(
@@ -116,6 +127,78 @@ class BahanFragment : Fragment() {
             false
         }
 
+    }
+
+    fun SiapkanData() {
+        _nama = resources.getStringArray(R.array.namaWayang).toMutableList()
+        _kategori = resources.getStringArray(R.array.karakterUtamaWayang).toMutableList()
+        _gambar = resources.getStringArray(R.array.gambarWayang).toMutableList()
+    }
+
+    fun TambahData() {
+        arBahan.clear()
+
+        for (position in _nama.indices) {
+            val data = dcBahan(
+                _gambar[position],
+                _nama[position],
+                _kategori[position]
+            )
+            arBahan.add(data)
+        }
+    }
+
+    fun TampilkanData() {
+        // 1 colum
+        _rvWayang.layoutManager = LinearLayoutManager(this)
+
+        // 2 colum
+//         _rvWayang.layoutManager = GridLayoutManager(this,2)
+
+        //
+//        _rvWayang.layoutManager = StaggeredGridLayoutManager(2, LinearLayoutManager.VERTICAL)
+
+        val adapterWayang = adapterRecView(arWayang)
+        _rvWayang.adapter = adapterWayang
+
+        adapterWayang.setOnItemClickCallback(object : adapterRecView.OnItemClickCallback {
+            override fun onItemClicked(data: dcWayang) {
+
+                val intent = Intent(this@MainActivity, detWayang::class.java)
+                intent.putExtra("kirimData", data)
+                startActivity(intent)
+
+//                Toast.makeText(this@MainActivity, data.nama, Toast.LENGTH_SHORT)
+//                    .show()
+            }
+
+//            override fun delData(pos: Int) {
+//                AlertDialog.Builder(this@MainActivity)
+//                    .setTitle("HAPUS DATA")
+//                    .setMessage("Apakah Benar Data " + _nama[pos] + " akan dihapus ?")
+//                    .setPositiveButton(
+//                        "HAPUS",
+//                        DialogInterface.OnClickListener { dialog, which ->
+//                            _gambar.removeAt(pos)
+//                            _nama.removeAt(pos)
+//                            _deskripsi.removeAt(pos)
+//                            _karakter.removeAt(pos)
+//                            TambahData()
+//                            TampilkanData()
+//                        }
+//                    )
+//                    .setNegativeButton(
+//                        "BATAL",
+//                        DialogInterface.OnClickListener { dialog, which ->
+//                            Toast.makeText(
+//                                this@MainActivity,
+//                                "Data Batal Dihapus",
+//                                Toast.LENGTH_LONG
+//                            ).show()
+//                        }
+//                    ).show()
+//            }
+        })
     }
 
     // Edit, Delate, Cancel
@@ -173,7 +256,7 @@ class BahanFragment : Fragment() {
         }
 
         // Nama dan Kategori default
-        val (oldNama, oldKategori) = oldValue?.split(" - ") ?: listOf("", "")
+        val (oldNama, oldKategori) = oldValue?.split(" | ") ?: listOf("", "")
 
         val etNewNama = EditText(requireContext())
         etNewNama.hint = "Masukan Nama"
