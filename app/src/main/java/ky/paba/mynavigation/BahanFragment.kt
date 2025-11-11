@@ -102,6 +102,7 @@ class BahanFragment : Fragment() {
 
     }
 
+    // Edit, Delate, Cancel
     private fun showActionDialog(
         position: Int,
         selectedItem: String,
@@ -166,8 +167,13 @@ class BahanFragment : Fragment() {
         etNewKategori.hint = "Masukan Kategori"
         etNewKategori.setText(oldKategori)
 
+        val etNewImage = EditText(requireContext())
+        etNewImage.hint = "URL Gambar"
+//        etNewImage.setText(oldKategori)
+
         layout.addView(etNewNama)
         layout.addView(etNewKategori)
+        layout.addView(etNewImage)
 
         builder.setView(layout)
 
