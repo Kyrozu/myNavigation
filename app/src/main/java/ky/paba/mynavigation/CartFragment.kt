@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.json.JSONArray
+import androidx.core.content.edit
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -32,7 +33,11 @@ class CartFragment : Fragment() {
     private var arCart = arrayListOf<dcBahan>()
     private lateinit var _rvCart: RecyclerView
 
-    lateinit var spCart: SharedPreferences
+    lateinit var spData: SharedPreferences
+
+    // bought
+    private var arBought = arrayListOf<dcBahan>()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,14 +58,25 @@ class CartFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Shared Preferences
-        spCart = requireContext().getSharedPreferences("dataSPBahan", MODE_PRIVATE)
+        // Ambil data Bahan
+        spData = requireContext().getSharedPreferences("dataSPBahan", MODE_PRIVATE)
         val gson = Gson()
-        val isiSP = spCart.getString("dt_cart", null)
-        val type = object : TypeToken<ArrayList<dcBahan>>() {}.type
-        if (isiSP != null) {
-            arCart = gson.fromJson(isiSP, type)
+
+        // Cart
+        val isiCart = spData.getString("dt_cart", null)
+        val typeCart = object : TypeToken<ArrayList<dcBahan>>() {}.type
+        if (isiCart != null) {
+            arCart = gson.fromJson(isiCart, typeCart)
         }
+
+        // Bought
+        val isiBought = spData.getString("dt_bought", null)
+        val typeBought = object : TypeToken<ArrayList<dcBahan>>() {}.type
+        if (isiBought != null) {
+            arBought = gson.fromJson(isiBought, typeBought)  // <- benar
+        }
+
+
 
         _rvCart = view.findViewById(R.id.rvCart)
 
@@ -76,7 +92,7 @@ class CartFragment : Fragment() {
     private fun saveToSharedPref() {
         val gson = Gson()
         val json = gson.toJson(arCart)
-        spCart.edit().putString("dt_cart", json).apply()
+        spData.edit().putString("dt_cart", json).apply()
     }
 
 
@@ -84,7 +100,7 @@ class CartFragment : Fragment() {
     fun SiapkanData() {
         arCart.clear()
 
-        val json = spCart.getString("dt_cart", "[]")
+        val json = spData.getString("dt_cart", "[]")
         val arr = JSONArray(json)
 
         for (i in 0 until arr.length()) {
@@ -116,7 +132,20 @@ class CartFragment : Fragment() {
             }
 
             override fun bought(position: Int) {
-                TODO("Not yet implemented")
+                val item = arCart[position]
+
+                // Tambahkan ke array cart
+                arBought.add(item)
+
+                // Simpan ke SharedPreferences
+                val gson = Gson()
+                val json = gson.toJson(arBought)
+                spData.edit().putString("dt_bought", json).apply()
+
+                // delete dari cart
+                arCart.removeAt(position)
+                saveToSharedPref()
+                TampilkanData()
             }
 
             override fun delData(pos: Int) {
@@ -131,7 +160,6 @@ class CartFragment : Fragment() {
                     .setNegativeButton("Batal", null)
                     .show()
             }
-
 
 
         })
