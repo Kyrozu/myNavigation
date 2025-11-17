@@ -1,10 +1,18 @@
 package ky.paba.mynavigation
 
+import android.content.Context.MODE_PRIVATE
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import org.json.JSONArray
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -21,6 +29,11 @@ class CartFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
+    private var arCart = arrayListOf<dcBahan>()
+    private lateinit var _rvCart: RecyclerView
+
+    lateinit var spCart: SharedPreferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -36,6 +49,94 @@ class CartFragment : Fragment() {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_cart, container, false)
     }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Shared Preferences
+        spCart = requireContext().getSharedPreferences("dataSPBahan", MODE_PRIVATE)
+        val gson = Gson()
+        val isiSP = spCart.getString("dt_cart", null)
+        val type = object : TypeToken<ArrayList<dcBahan>>() {}.type
+        if (isiSP != null) {
+            arCart = gson.fromJson(isiSP, type)
+        }
+
+        _rvCart = view.findViewById(R.id.rvCart)
+
+        // Jika SP kosong, ambil data default
+        if (arCart.isEmpty()) {
+            SiapkanData()
+            saveToSharedPref()   // save
+        }
+        TampilkanData() // display all
+
+    }
+
+    private fun saveToSharedPref() {
+        val gson = Gson()
+        val json = gson.toJson(arCart)
+        spCart.edit().putString("dt_cart", json).apply()
+    }
+
+
+    // read file xml / sharedPreferences
+    fun SiapkanData() {
+        arCart.clear()
+
+        val json = spCart.getString("dt_cart", "[]")
+        val arr = JSONArray(json)
+
+        for (i in 0 until arr.length()) {
+            val obj = arr.getJSONObject(i)
+
+            val gambar = obj.getString("gambar")
+            val kategori = obj.getString("kategori")
+            val nama = obj.getString("nama")
+
+            arCart.add(dcBahan(gambar, nama, kategori))
+        }
+    }
+
+
+    fun TampilkanData() {
+        // 1 colum
+        _rvCart.layoutManager = LinearLayoutManager(requireContext())
+
+        val adapterBahan = adapterRecView(arCart, "CART")
+        _rvCart.adapter = adapterBahan
+
+        adapterBahan.setOnItemClickCallback(object : adapterRecView.OnItemClickCallback {
+            override fun onItemClicked(data: dcBahan) {
+                TODO("Not yet implemented")
+            }
+
+            override fun toCart(position: Int) {
+                TODO("Not yet implemented")
+            }
+
+            override fun bought(position: Int) {
+                TODO("Not yet implemented")
+            }
+
+            override fun delData(pos: Int) {
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Hapus Data")
+                    .setMessage("Hapus bahan ini?")
+                    .setPositiveButton("Hapus") { _, _ ->
+                        arCart.removeAt(pos)
+                        saveToSharedPref()
+                        TampilkanData()
+                    }
+                    .setNegativeButton("Batal", null)
+                    .show()
+            }
+
+
+
+        })
+    }
+
 
     companion object {
         /**

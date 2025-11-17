@@ -24,6 +24,10 @@
         android:icon="@drawable/outline_skillet_cooktop_24"
         android:title="Bahan" />
 
+    <item
+        android:id="@+id/cartFragment"
+        android:icon="@drawable/baseline_add_shopping_cart_24"
+        android:title="Cart" />
 
     <item android:title="Confidential">
         <menu>

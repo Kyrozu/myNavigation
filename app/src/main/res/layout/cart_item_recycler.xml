@@ -19,8 +19,8 @@
 
     <TextView
         android:id="@+id/namaBahan"
-        android:layout_width="130dp"
-        android:layout_height="60dp"
+        android:layout_width="131dp"
+        android:layout_height="55dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="5dp"
         android:text="namaBahan"
@@ -31,9 +31,9 @@
 
     <TextView
         android:id="@+id/kategoriBahan"
-        android:layout_width="130dp"
-        android:layout_height="20dp"
-        android:layout_marginTop="5dp"
+        android:layout_width="131dp"
+        android:layout_height="24dp"
+        android:layout_marginTop="8dp"
         android:text="kategoriBahan"
         android:textSize="16sp"
         android:textStyle="bold"
@@ -41,19 +41,18 @@
         app:layout_constraintTop_toBottomOf="@+id/namaBahan" />
 
     <ImageButton
-        android:id="@+id/cartBtn"
+        android:id="@+id/boughtBtn"
         android:layout_width="68dp"
         android:layout_height="68dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="44dp"
         android:background="@drawable/bg_circle"
-        android:padding="19dp"
+        android:padding="16dp"
         android:scaleType="centerCrop"
         app:layout_constraintBottom_toTopOf="@+id/deleteBtn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.421"
-        app:srcCompat="@drawable/baseline_add_shopping_cart_24" />
+        app:srcCompat="@drawable/outline_bucket_check_24" />
 
     <Button
         android:id="@+id/deleteBtn"
@@ -74,6 +73,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

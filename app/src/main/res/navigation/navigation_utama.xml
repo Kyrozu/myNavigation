@@ -37,4 +37,9 @@
         android:name="ky.paba.mynavigation.BahanFragment"
         android:label="bahan"
         tools:layout="@layout/fragment_bahan" />
+    <fragment
+        android:id="@+id/cartFragment"
+        android:name="ky.paba.mynavigation.CartFragment"
+        android:label="cart"
+        tools:layout="@layout/fragment_cart" />
 </navigation>

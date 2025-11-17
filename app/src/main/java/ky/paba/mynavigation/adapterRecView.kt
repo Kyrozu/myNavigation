@@ -11,16 +11,22 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 
-class adapterRecView(private val listBahan: ArrayList<dcBahan>) :
-    RecyclerView.Adapter<adapterRecView.ListViewHolder>() {
+class adapterRecView(
+    private val listBahan: ArrayList<dcBahan>,
+    private val mode: String   // "BAHAN" atau "CART"
+) : RecyclerView.Adapter<adapterRecView.ListViewHolder>() {
 
     private lateinit var onItemClickCallback: OnItemClickCallback
 
     interface OnItemClickCallback {
         fun onItemClicked(data: dcBahan)
 
-        fun delData(pos: Int)
+        fun bought(position: Int)
+
         fun toCart(position: Int)
+
+        fun delData(pos: Int)
+
     }
 
     fun setOnItemClickCallback(onItemClickCallback: OnItemClickCallback) {
@@ -33,7 +39,8 @@ class adapterRecView(private val listBahan: ArrayList<dcBahan>) :
         val _namaBahan = view.findViewById<TextView>(R.id.namaBahan)
         val _kategoriBahan = view.findViewById<TextView>(R.id.kategoriBahan)
 
-        var _cartBtn = view.findViewById<ImageButton>(R.id.cartBtn)
+        var _cartBtn = view.findViewById<ImageButton?>(R.id.cartBtn)
+        var _boughtBtn = view.findViewById<ImageButton?>(R.id.boughtBtn)
         var _btnHapus = view.findViewById<Button>(R.id.deleteBtn)
 
     }
@@ -43,8 +50,14 @@ class adapterRecView(private val listBahan: ArrayList<dcBahan>) :
         parent: ViewGroup,
         viewType: Int
     ): ListViewHolder {
-        val view: View = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_recycler, parent, false)
+        val view: View;
+        if (mode == "BAHAN") {
+            view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_recycler, parent, false)
+        } else {
+            view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.cart_item_recycler, parent, false)
+        }
         return ListViewHolder(view)
     }
 
@@ -73,9 +86,12 @@ class adapterRecView(private val listBahan: ArrayList<dcBahan>) :
         holder._namaBahan.setText(bahan.nama)
         holder._kategoriBahan.setText(bahan.kategori)
 
-        holder._cartBtn.setOnClickListener{
+        holder._cartBtn?.setOnClickListener {
             onItemClickCallback.toCart(position)
+        }
 
+        holder._boughtBtn?.setOnClickListener {
+            onItemClickCallback.bought(position)
         }
 
         holder._btnHapus.setOnClickListener {

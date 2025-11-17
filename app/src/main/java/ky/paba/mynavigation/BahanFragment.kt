@@ -2,23 +2,14 @@ package ky.paba.mynavigation
 
 import android.annotation.SuppressLint
 import android.content.Context.MODE_PRIVATE
-import android.content.DialogInterface
-import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.GestureDetector
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.ListView
-import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -49,8 +40,10 @@ class BahanFragment : Fragment() {
 
     private var arBahan = arrayListOf<dcBahan>()
     private lateinit var _rvBahan: RecyclerView
+    lateinit var spData: SharedPreferences
 
-    lateinit var spBahan: SharedPreferences
+    // cart
+    private var arCart = arrayListOf<dcBahan>()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -96,14 +89,24 @@ class BahanFragment : Fragment() {
             showAddDialog()
         }
 
-        // Shared Preferences
-        spBahan = requireContext().getSharedPreferences("dataSPBahan", MODE_PRIVATE)
+        // SharedPreferences
+        spData = requireContext().getSharedPreferences("dataSPBahan", MODE_PRIVATE)
         val gson = Gson()
-        val isiSP = spBahan.getString("spBahan", null)
-        val type = object : TypeToken<ArrayList<dcBahan>>() {}.type
-        if (isiSP != null) {
-            arBahan = gson.fromJson(isiSP, type)
+
+        // Ambil data Bahan
+        val isiBahan = spData.getString("spBahan", null)
+        val typeBahan = object : TypeToken<ArrayList<dcBahan>>() {}.type
+        if (isiBahan != null) {
+            arBahan = gson.fromJson(isiBahan, typeBahan)
         }
+
+        // Ambil data Cart
+        val isiCart = spData.getString("dt_cart", null)
+        val typeCart = object : TypeToken<ArrayList<dcBahan>>() {}.type
+        if (isiCart != null) {
+            arCart = gson.fromJson(isiCart, typeCart)
+        }
+
 
         _rvBahan = view.findViewById(R.id.rvBahan)
 
@@ -145,7 +148,7 @@ class BahanFragment : Fragment() {
     private fun saveToSharedPref() {
         val gson = Gson()
         val json = gson.toJson(arBahan)
-        spBahan.edit().putString("spBahan", json).apply()
+        spData.edit().putString("spBahan", json).apply()
     }
 
 
@@ -170,17 +173,28 @@ class BahanFragment : Fragment() {
         // 1 colum
         _rvBahan.layoutManager = LinearLayoutManager(requireContext())
 
-        val adapterWayang = adapterRecView(arBahan)
-        _rvBahan.adapter = adapterWayang
+        val adapterBahan = adapterRecView(arBahan,"BAHAN")
+        _rvBahan.adapter = adapterBahan
 
-        adapterWayang.setOnItemClickCallback(object : adapterRecView.OnItemClickCallback {
+        adapterBahan.setOnItemClickCallback(object : adapterRecView.OnItemClickCallback {
             override fun onItemClicked(data: dcBahan) {
                 TODO("Not yet implemented")
             }
 
             override fun toCart(pos: Int) {
-                TODO("Not yet implemented")
+                val item = arBahan[pos]
 
+                // Tambahkan ke array cart
+                arCart.add(item)
+
+                // Simpan ke SharedPreferences
+                val gson = Gson()
+                val json = gson.toJson(arCart)
+                spData.edit().putString("dt_cart", json).apply()
+            }
+
+            override fun bought(position: Int) {
+                TODO("Not yet implemented")
             }
 
             override fun delData(pos: Int) {
@@ -195,6 +209,7 @@ class BahanFragment : Fragment() {
                     .setNegativeButton("Batal", null)
                     .show()
             }
+
 
         })
     }
