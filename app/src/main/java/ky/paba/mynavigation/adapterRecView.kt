@@ -4,6 +4,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -18,6 +20,7 @@ class adapterRecView(private val listBahan: ArrayList<dcBahan>) :
         fun onItemClicked(data: dcBahan)
 
         fun delData(pos: Int)
+        fun toCart(position: Int)
     }
 
     fun setOnItemClickCallback(onItemClickCallback: OnItemClickCallback) {
@@ -26,11 +29,12 @@ class adapterRecView(private val listBahan: ArrayList<dcBahan>) :
 
 
     inner class ListViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val _gambarBahan = view.findViewById<ImageView>(R.id.gambarBahan)
         val _namaBahan = view.findViewById<TextView>(R.id.namaBahan)
         val _kategoriBahan = view.findViewById<TextView>(R.id.kategoriBahan)
-        val _gambarBahan = view.findViewById<ImageView>(R.id.gambarBahan)
 
-//        var _btnHapus = view.findViewById<TextView>(R.id.btnHapus)
+        var _cartBtn = view.findViewById<ImageButton>(R.id.cartBtn)
+        var _btnHapus = view.findViewById<Button>(R.id.deleteBtn)
 
     }
 
@@ -56,9 +60,6 @@ class adapterRecView(private val listBahan: ArrayList<dcBahan>) :
     ) {
         val bahan = listBahan[position]
 
-        holder._namaBahan.setText(bahan.nama)
-        holder._kategoriBahan.setText(bahan.kategori)
-
         Picasso.get()
             .load(bahan.gambar)
             .resize(100, 100)
@@ -69,9 +70,17 @@ class adapterRecView(private val listBahan: ArrayList<dcBahan>) :
             onItemClickCallback.onItemClicked(listBahan[holder.adapterPosition])
         }
 
-//        holder._btnHapus.setOnClickListener {
-//            onItemClickCallback.delData(position)
-//        }
+        holder._namaBahan.setText(bahan.nama)
+        holder._kategoriBahan.setText(bahan.kategori)
+
+        holder._cartBtn.setOnClickListener{
+            onItemClickCallback.toCart(position)
+
+        }
+
+        holder._btnHapus.setOnClickListener {
+            onItemClickCallback.delData(position)
+        }
     }
 
 }

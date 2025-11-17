@@ -1,8 +1,10 @@
 package ky.paba.mynavigation
 
 import android.annotation.SuppressLint
+import android.content.Context.MODE_PRIVATE
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.GestureDetector
 import androidx.fragment.app.Fragment
@@ -19,6 +21,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -36,13 +41,16 @@ class BahanFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
-    private lateinit var _nama: MutableList<String>
-    private lateinit var _kategori: MutableList<String>
-    private lateinit var _gambar: MutableList<String>
+    private var _nama: MutableList<String> = emptyList<String>().toMutableList()
+    private var _kategori: MutableList<String> = emptyList<String>().toMutableList()
+    private var _gambar: MutableList<String> = emptyList<String>().toMutableList()
 
     var itemBahan = mutableListOf<String>()
 
     private var arBahan = arrayListOf<dcBahan>()
+    private lateinit var _rvBahan: RecyclerView
+
+    lateinit var spBahan: SharedPreferences
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,224 +90,113 @@ class BahanFragment : Fragment() {
             )
         )
 
-
-        val lvAdapter =
-            ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, itemBahan)
-
-        val _lv1 = view.findViewById<ListView>(R.id.bahan)
-        _lv1.adapter = lvAdapter
-
-        // TODO
+        // Add new bahan
         val _btnTambah = view.findViewById<Button>(R.id.btnTambah)
         _btnTambah.setOnClickListener {
-            showUpdateDialog(
-                null,  // berarti item baru
-                null,
-                itemBahan,
-                lvAdapter
-            )
-            lvAdapter.notifyDataSetChanged()
+            showAddDialog()
         }
 
-        _lv1.setOnItemClickListener { parent, view, position, id ->
-            Toast.makeText(
-                requireContext(),
-                itemBahan[position],
-                Toast.LENGTH_SHORT
-            ).show()
+        // Shared Preferences
+        spBahan = requireContext().getSharedPreferences("dataSPBahan", MODE_PRIVATE)
+        val gson = Gson()
+        val isiSP = spBahan.getString("spBahan", null)
+        val type = object : TypeToken<ArrayList<dcBahan>>() {}.type
+        if (isiSP != null) {
+            arBahan = gson.fromJson(isiSP, type)
         }
 
-        val gestureDetector = GestureDetector(
-            requireContext(),
-            object : GestureDetector.SimpleOnGestureListener() {
-                override fun onDoubleTap(e: MotionEvent): Boolean {
-                    val position = _lv1.pointToPosition(e.x.toInt(), e.y.toInt())
-                    if (position != ListView.INVALID_POSITION) {
-                        val selectedItem = itemBahan[position]
-                        showActionDialog(position, selectedItem, itemBahan, lvAdapter)
-                    }
-                    return true
-                }
-            })
+        _rvBahan = view.findViewById(R.id.rvBahan)
 
-        _lv1.setOnTouchListener { _, event ->
-            gestureDetector.onTouchEvent(event)
-            false
+        // Jika SP kosong, ambil data default
+        if (arBahan.isEmpty()) {
+            SiapkanData()        // isi arBahan dari itemBahan
+            saveToSharedPref()   // simpan awal
         }
-
+        TampilkanData() // display all
     }
+
+    private fun showAddDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_add_bahan, null)
+
+        val edtNama = dialogView.findViewById<EditText>(R.id.edtNama)
+        val edtKategori = dialogView.findViewById<EditText>(R.id.edtKategori)
+        val edtGambar = dialogView.findViewById<EditText>(R.id.edtGambar)
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Tambah Bahan")
+            .setView(dialogView)
+            .setPositiveButton("Simpan") { _, _ ->
+                val nama = edtNama.text.toString()
+                val kategori = edtKategori.text.toString()
+                val gambar = edtGambar.text.toString()
+
+                if (nama.isNotEmpty() && kategori.isNotEmpty() && gambar.isNotEmpty()) {
+                    itemBahan.add("$nama | $kategori | $gambar")
+
+                    SiapkanData()
+                    saveToSharedPref()
+                    TampilkanData()
+                }
+            }
+            .setNegativeButton("Batal", null)
+            .show()
+    }
+
+    private fun saveToSharedPref() {
+        val gson = Gson()
+        val json = gson.toJson(arBahan)
+        spBahan.edit().putString("spBahan", json).apply()
+    }
+
 
     fun SiapkanData() {
-        _nama = resources.getStringArray(R.array.namaWayang).toMutableList()
-        _kategori = resources.getStringArray(R.array.karakterUtamaWayang).toMutableList()
-        _gambar = resources.getStringArray(R.array.gambarWayang).toMutableList()
-    }
-
-    fun TambahData() {
         arBahan.clear()
 
-        for (position in _nama.indices) {
-            val data = dcBahan(
-                _gambar[position],
-                _nama[position],
-                _kategori[position]
-            )
-            arBahan.add(data)
+        for (item in itemBahan) {
+            val parts = item.split("|").map { it.trim() }
+
+            if (parts.size == 3) {
+                val nama = parts[0]
+                val kategori = parts[1]
+                val gambar = parts[2]
+
+                arBahan.add(dcBahan(gambar, nama, kategori))
+            }
         }
     }
+
 
     fun TampilkanData() {
         // 1 colum
-        _rvWayang.layoutManager = LinearLayoutManager(this)
+        _rvBahan.layoutManager = LinearLayoutManager(requireContext())
 
-        // 2 colum
-//         _rvWayang.layoutManager = GridLayoutManager(this,2)
-
-        //
-//        _rvWayang.layoutManager = StaggeredGridLayoutManager(2, LinearLayoutManager.VERTICAL)
-
-        val adapterWayang = adapterRecView(arWayang)
-        _rvWayang.adapter = adapterWayang
+        val adapterWayang = adapterRecView(arBahan)
+        _rvBahan.adapter = adapterWayang
 
         adapterWayang.setOnItemClickCallback(object : adapterRecView.OnItemClickCallback {
-            override fun onItemClicked(data: dcWayang) {
-
-                val intent = Intent(this@MainActivity, detWayang::class.java)
-                intent.putExtra("kirimData", data)
-                startActivity(intent)
-
-//                Toast.makeText(this@MainActivity, data.nama, Toast.LENGTH_SHORT)
-//                    .show()
+            override fun onItemClicked(data: dcBahan) {
+                TODO("Not yet implemented")
             }
 
-//            override fun delData(pos: Int) {
-//                AlertDialog.Builder(this@MainActivity)
-//                    .setTitle("HAPUS DATA")
-//                    .setMessage("Apakah Benar Data " + _nama[pos] + " akan dihapus ?")
-//                    .setPositiveButton(
-//                        "HAPUS",
-//                        DialogInterface.OnClickListener { dialog, which ->
-//                            _gambar.removeAt(pos)
-//                            _nama.removeAt(pos)
-//                            _deskripsi.removeAt(pos)
-//                            _karakter.removeAt(pos)
-//                            TambahData()
-//                            TampilkanData()
-//                        }
-//                    )
-//                    .setNegativeButton(
-//                        "BATAL",
-//                        DialogInterface.OnClickListener { dialog, which ->
-//                            Toast.makeText(
-//                                this@MainActivity,
-//                                "Data Batal Dihapus",
-//                                Toast.LENGTH_LONG
-//                            ).show()
-//                        }
-//                    ).show()
-//            }
+            override fun toCart(pos: Int) {
+                TODO("Not yet implemented")
+
+            }
+
+            override fun delData(pos: Int) {
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Hapus Data")
+                    .setMessage("Hapus bahan ini?")
+                    .setPositiveButton("Hapus") { _, _ ->
+                        arBahan.removeAt(pos)
+                        saveToSharedPref()
+                        TampilkanData()
+                    }
+                    .setNegativeButton("Batal", null)
+                    .show()
+            }
+
         })
-    }
-
-    // Edit, Delate, Cancel
-    private fun showActionDialog(
-        position: Int,
-        selectedItem: String,
-        data: MutableList<String>,
-        adapter: ArrayAdapter<String>
-    ) {
-        val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("$selectedItem")
-        builder.setMessage("Pilih tindakan yang ingin dilakukan:")
-
-        builder.setPositiveButton("Update") { _, _ ->
-            //untuk Update
-            showUpdateDialog(position, selectedItem, data, adapter)
-        }
-
-        builder.setNegativeButton("Hapus") { _, _ ->
-            data.removeAt(position)
-            adapter.notifyDataSetChanged()
-            Toast.makeText(
-                requireContext(),
-                "Hapus Item $selectedItem",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-
-        builder.setNeutralButton("Batal") { dialog, _ ->
-            dialog.dismiss()
-        }
-
-        builder.create().show()
-    }
-
-    private fun showUpdateDialog(
-        position: Int? = null,          // null berarti item baru
-        oldValue: String? = null,
-        data: MutableList<String>,
-        adapter: ArrayAdapter<String>
-    ) {
-        val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle(if (oldValue != null) "Update Data" else "Tambah Data")
-
-        val layout = LinearLayout(requireContext())
-        layout.orientation = LinearLayout.VERTICAL
-        layout.setPadding(50, 40, 50, 10)
-
-        // TextView untuk data lama
-        oldValue?.let {
-            val tvOld = TextView(requireContext())
-            tvOld.text = "Data Lama: $it"
-            tvOld.textSize = 16f
-            layout.addView(tvOld)
-        }
-
-        // Nama dan Kategori default
-        val (oldNama, oldKategori) = oldValue?.split(" | ") ?: listOf("", "")
-
-        val etNewNama = EditText(requireContext())
-        etNewNama.hint = "Masukan Nama"
-        etNewNama.setText(oldNama)
-
-        val etNewKategori = EditText(requireContext())
-        etNewKategori.hint = "Masukan Kategori"
-        etNewKategori.setText(oldKategori)
-
-        val etNewImage = EditText(requireContext())
-        etNewImage.hint = "URL Gambar"
-//        etNewImage.setText(oldKategori)
-
-        layout.addView(etNewNama)
-        layout.addView(etNewKategori)
-        layout.addView(etNewImage)
-
-        builder.setView(layout)
-
-        builder.setPositiveButton("Simpan") { dialog, _ ->
-            val inputNama = etNewNama.text.toString().trim().ifEmpty { oldNama }
-            val inputKategori = etNewKategori.text.toString().trim().ifEmpty { oldKategori }
-
-            val newValue = "$inputNama - $inputKategori"
-
-            if (position != null) {
-                // update existing item
-                data[position] = newValue
-            } else {
-                // add new item
-                data.add(newValue)
-            }
-
-            adapter.notifyDataSetChanged()
-            Toast.makeText(requireContext(), "Data tersimpan: $newValue", Toast.LENGTH_SHORT).show()
-            dialog.dismiss()
-        }
-
-        builder.setNegativeButton("Batal") { dialog, _ ->
-            dialog.dismiss()
-        }
-
-        builder.create().show()
     }
 
 
